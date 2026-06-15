@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+@theme {
+  --color-on-surface: #191c1d;
+  --color-primary: #004ac6;
+  --color-inverse-primary: #b4c5ff;
+  --color-inverse-surface: #2e3132;
+  --color-on-primary-fixed-variant: #003ea8;
+  --color-on-secondary-fixed-variant: #5e4100;
+  --color-surface-container: #edeeef;
+  --color-on-secondary-fixed: #271900;
+  --color-surface: #f8f9fa;
+  --color-glass-stroke: rgba(255, 255, 255, 0.3);
+  --color-tertiary: #943700;
+  --color-surface-container-lowest: #ffffff;
+  --color-inverse-on-surface: #f0f1f2;
+  --color-secondary-fixed-dim: #ffba26;
+  --color-on-primary-fixed: #00174b;
+  --color-error: #ba1a1a;
+  --color-on-tertiary-fixed-variant: #7d2d00;
+  --color-on-tertiary-fixed: #360f00;
+  --color-outline: #737686;
+  --color-tertiary-container: #bc4800;
+  --color-primary-fixed-dim: #b4c5ff;
+  --color-surface-container-highest: #e1e3e4;
+  --color-secondary-container: #ffb700;
+  --color-background: #f8f9fa;
+  --color-surface-bright: #f8f9fa;
+  --color-text-main: #111827;
+  --color-tertiary-fixed-dim: #ffb596;
+  --color-surface-dim: #d9dadb;
+  --color-on-primary: #ffffff;
+  --color-secondary: #7d5800;
+  --color-outline-variant: #c3c6d7;
+  --color-on-surface-variant: #434655;
+  --color-surface-variant: #e1e3e4;
+  --color-primary-fixed: #dbe1ff;
+  --color-primary-container: #2563eb;
+  --color-on-error-container: #93000a;
+  --color-on-background: #191c1d;
+  --color-on-primary-container: #eeefff;
+  --color-on-error: #ffffff;
+  --color-on-tertiary-container: #ffede6;
+  --color-on-secondary-container: #6b4b00;
+  --color-on-secondary: #ffffff;
+  --color-on-tertiary: #ffffff;
+  --color-surface-tint: #0053db;
+  --color-surface-white: #FFFFFF;
+  --color-surface-container-low: #f3f4f5;
+  --color-text-muted: #6B7280;
+  --color-surface-container-high: #e7e8e9;
+  --color-tertiary-fixed: #ffdbcd;
+  --color-secondary-fixed: #ffdea9;
+  --color-error-container: #ffdad6;
+
+  --radius-card: 16px;
+  --radius-btn: 12px;
+
+  --spacing-container-max: 1280px;
+  --spacing-margin-desktop: 40px;
+  --spacing-margin-mobile: 16px;
+  --spacing-gutter: 24px;
+  --spacing-base: 8px;
+
+  --font-body-lg: "Inter", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+  --font-headline-md: "Inter", sans-serif;
+  --font-headline-lg-mobile: "Inter", sans-serif;
+  --font-label-sm: "Inter", sans-serif;
+  --font-display-lg: "Inter", sans-serif;
+  --font-headline-lg: "Inter", sans-serif;
+  --font-label-md: "Inter", sans-serif;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 600;
+
+  --text-headline-lg-mobile: 24px;
+  --text-headline-lg-mobile--line-height: 32px;
+  --text-headline-lg-mobile--letter-spacing: -0.01em;
+  --text-headline-lg-mobile--font-weight: 600;
+
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--font-weight: 600;
+
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 56px;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 700;
+
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--letter-spacing: -0.01em;
+  --text-headline-lg--font-weight: 600;
+
+  --text-label-md: 14px;
+  --text-label-md--line-height: 20px;
+  --text-label-md--letter-spacing: 0.01em;
+  --text-label-md--font-weight: 500;
+
+  --shadow-ambient: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-stroke);
+}
+
+.dark-glass-panel {
+  background: rgba(46, 49, 50, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, var(--color-primary-container) 0%, var(--color-inverse-primary) 100%);
+}
+
+.card-shadow {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+.ambient-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+}
+
+.image-overlay {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6));
+}
