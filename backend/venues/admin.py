@@ -1,0 +1,8 @@
+from django.contrib import admin
+from .models import Venue, Amenity, VenueImage, VenueCapacity
+
+# Register your models here.
+admin.site.register(Venue)
+admin.site.register(Amenity)
+admin.site.register(VenueImage)
+admin.site.register(VenueCapacity)

@@ -14,7 +14,7 @@ export default function TopNavBar({ activePage = 'home' }: { activePage?: 'home'
           <Link className={`${activePage === 'listings' ? 'text-primary font-bold border-b-2 border-primary pb-1' : 'text-on-surface-variant hover:text-primary transition-colors duration-300 ease-in-out'} font-body-md text-body-md`} to="/venues">Listings</Link>
         </div>
         <div className="flex items-center gap-4">
-          <Link className="hidden md:block px-6 py-2 bg-primary text-on-primary rounded-btn font-label-md text-label-md hover:shadow-ambient hover:opacity-90 transition-all" to="/register">Sign In</Link>
+          <Link className="hidden md:block px-6 py-2 bg-primary text-on-primary rounded-btn font-label-md text-label-md hover:shadow-ambient hover:opacity-90 transition-all" to="/login">Sign In</Link>
           <Link className="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center p-2 rounded-full hover:bg-surface-container" to="/user-dashboard">
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>account_circle</span>
           </Link>

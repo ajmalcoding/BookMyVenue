@@ -1,4 +1,7 @@
 import React from 'react';
+import { useState } from "react";
+import { registerUser } from "../api/auth";
+import { Link } from "react-router-dom";
 
 function SocialLoginButton({ icon, text }: { icon: React.ReactNode, text: string }) {
   return (
@@ -10,6 +13,44 @@ function SocialLoginButton({ icon, text }: { icon: React.ReactNode, text: string
 }
 
 export default function RegisterForm() {
+
+  const [formData, setFormData] = useState({
+    username: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+
+    const payload = {
+      ...formData,
+      username: formData.email,
+      last_name: "",
+    };
+
+    try {
+      await registerUser(payload);
+      alert("Registration successful!");
+    } catch (error: any) {
+      console.log(error.response?.data);
+      alert("Registration failed");
+    }
+  };
+
   return (
     <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-margin-desktop bg-surface-container-lowest">
       {/* Form Container */}
@@ -49,15 +90,15 @@ export default function RegisterForm() {
         </div>
 
         {/* Registration Form */}
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Full Name */}
           <div>
             <label className="block font-label-md text-label-md text-on-surface mb-2" htmlFor="fullName">Full Name</label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none material-symbols-outlined text-on-surface-variant" style={{ fontVariationSettings: "'FILL' 0" }}>
+              <span className="absolute inset-y-0 left-0 py-3 pl-3 flex items-center pointer-events-none material-symbols-outlined text-on-surface-variant" style={{ fontVariationSettings: "'FILL' 0" }}>
                 person
               </span>
-              <input className="w-full pl-10 pr-4 py-3 rounded-[12px] border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors duration-200 font-body-md text-body-md outline-none" id="fullName" name="fullName" placeholder="Jane Doe" type="text" />
+              <input className="w-full pl-10 pr-4 py-3 rounded-[12px] border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors duration-200 font-body-md text-body-md outline-none" id="fullName" name="first_name" placeholder="Jane Doe" type="text" onChange={handleChange} />
             </div>
           </div>
 
@@ -65,10 +106,10 @@ export default function RegisterForm() {
           <div>
             <label className="block font-label-md text-label-md text-on-surface mb-2" htmlFor="email">Email Address</label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none material-symbols-outlined text-on-surface-variant" style={{ fontVariationSettings: "'FILL' 0" }}>
+              <span className="absolute inset-y-0 left-0 py-3 pl-3 flex items-center pointer-events-none material-symbols-outlined text-on-surface-variant" style={{ fontVariationSettings: "'FILL' 0" }}>
                 mail
               </span>
-              <input className="w-full pl-10 pr-4 py-3 rounded-[12px] border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors duration-200 font-body-md text-body-md outline-none" id="email" name="email" placeholder="jane@example.com" type="email" />
+              <input className="w-full pl-10 pr-4 py-3 rounded-[12px] border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors duration-200 font-body-md text-body-md outline-none" id="email" name="email" placeholder="jane@example.com" type="email" onChange={handleChange} />
             </div>
           </div>
 
@@ -76,10 +117,10 @@ export default function RegisterForm() {
           <div>
             <label className="block font-label-md text-label-md text-on-surface mb-2" htmlFor="password">Password</label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none material-symbols-outlined text-on-surface-variant" style={{ fontVariationSettings: "'FILL' 0" }}>
+              <span className="absolute inset-y-0 left-0 py-3 pl-3 flex items-center pointer-events-none material-symbols-outlined text-on-surface-variant" style={{ fontVariationSettings: "'FILL' 0" }}>
                 lock
               </span>
-              <input className="w-full pl-10 pr-10 py-3 rounded-[12px] border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors duration-200 font-body-md text-body-md outline-none" id="password" name="password" placeholder="••••••••" type="password" />
+              <input className="w-full pl-10 pr-10 py-3 rounded-[12px] border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors duration-200 font-body-md text-body-md outline-none" id="password" name="password" placeholder="••••••••" type="password" onChange={handleChange} />
               <button className="absolute inset-y-0 right-0 pr-3 flex items-center material-symbols-outlined text-on-surface-variant hover:text-on-surface transition-colors" type="button">
                 visibility_off
               </button>
@@ -105,7 +146,7 @@ export default function RegisterForm() {
 
         {/* Footer Log in link */}
         <p className="mt-8 text-center font-body-md text-body-md text-on-surface-variant">
-          Already have an account? <a className="text-primary-container font-label-md text-label-md hover:underline" href="#">Sign In</a>
+          Already have an account? <Link className="text-primary-container font-label-md text-label-md hover:underline" to="/login">Sign In</Link>
         </p>
       </div>
     </div>
