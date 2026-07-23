@@ -61,12 +61,14 @@ class Venue(models.Model):
         max_digits=10,
         decimal_places=2,
         default=0,
+        blank=True,
     )
 
     service_fee = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         default=0,
+        blank=True,
     )
 
     capacity = models.PositiveIntegerField()
@@ -76,7 +78,7 @@ class Venue(models.Model):
     state = models.CharField(max_length=100)
     landmark = models.CharField(max_length=255, blank=True)
 
-    contact_phone = models.CharField(max_length=15)
+    contact_phone = models.CharField(max_length=15, blank=True,)
     contact_email = models.EmailField(blank=True)
 
     opening_time = models.TimeField()
@@ -132,7 +134,6 @@ class VenueImage(models.Model):
     )
 
     image = models.ImageField(upload_to="venue_images/")
-    caption = models.CharField(max_length=255, blank=True)
     is_primary = models.BooleanField(default=False)
 
     uploaded_at = models.DateTimeField(auto_now_add=True)

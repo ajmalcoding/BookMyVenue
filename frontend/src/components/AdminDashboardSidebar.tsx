@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function VenueOwnerSidebar() {
+export default function AdminDashboardSidebar() {
   return (
     <nav className="hidden md:flex flex-col gap-2 p-4 bg-surface dark:bg-inverse-surface h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-inverse-surface shadow-lg z-40">
       <div className="mb-8 px-4 flex items-center gap-3">

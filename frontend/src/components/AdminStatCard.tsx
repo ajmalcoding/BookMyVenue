@@ -1,6 +1,6 @@
 import React from 'react';
 
-export interface StatCardProps {
+export interface AdminStatCardProps {
   title: string;
   value: string;
   icon: string;
@@ -10,7 +10,7 @@ export interface StatCardProps {
   trendText: string;
 }
 
-export default function StatCard({ title, value, icon, iconColor, overlayClass, trendValue, trendText }: StatCardProps) {
+export default function AdminStatCard({ title, value, icon, iconColor, overlayClass, trendValue, trendText }: AdminStatCardProps) {
   return (
     <div className="dark-glass-panel rounded-xl p-6 shadow-sm relative overflow-hidden group">
       <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-2xl transition-all ${overlayClass}`}></div>
