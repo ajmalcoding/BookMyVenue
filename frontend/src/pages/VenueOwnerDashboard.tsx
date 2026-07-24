@@ -4,10 +4,32 @@ import VenueOwnerStatCard from '../components/VenueOwnerStatsCard';
 import BookingRequestRow from '../components/BookingRequestRow';
 import MyVenuesView from '../components/MyVenuesView';
 import AddVenueModal from '../components/AddVenueModal';
+import { createVenue } from "../api/venue";
 
 export default function VenueOwnerDashboard() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'venues'>('dashboard');
-  const [modalState, setModalState] = useState<{isOpen: boolean, mode: 'add' | 'edit'}>({isOpen: false, mode: 'add'});
+  const [modalState, setModalState] = useState<{isOpen: boolean; mode: 'add' | 'edit'; venue?: any;}>({isOpen: false, mode: 'add', venue: undefined,});
+
+  const handleCreateVenue = async (payload: any) => {
+    try {
+      console.log("Submitting:", payload);
+
+      const response = await createVenue(payload);
+
+      console.log("Venue Created:", response);
+
+      setModalState({
+        isOpen: false,
+        mode: "add",
+      });
+
+      // Later we'll refresh the venue list here
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const requests: React.ComponentProps<typeof BookingRequestRow>[] = [
     {
       initials: "AC",
@@ -118,10 +140,17 @@ export default function VenueOwnerDashboard() {
             />
           )}
       </main>
-      <AddVenueModal 
-        isOpen={modalState.isOpen} 
+     <AddVenueModal
+        isOpen={modalState.isOpen}
         mode={modalState.mode}
-        onClose={() => setModalState({ ...modalState, isOpen: false })}
+        venue={modalState.venue}
+        onClose={() =>
+          setModalState({
+            ...modalState,
+            isOpen: false,
+          })
+        }
+        onSubmit={handleCreateVenue}
       />
     </div>
   );

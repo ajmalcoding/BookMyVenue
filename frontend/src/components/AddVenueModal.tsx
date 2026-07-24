@@ -1,38 +1,149 @@
 import React, { useEffect, useState } from 'react';
+import { getAmenities } from "./../api/venue";
 
 export interface AddVenueModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode?: 'add' | 'edit';
+  venue?: any;
+  onSubmit: (payload: any) => Promise<void> | void;
 }
 
-export default function AddVenueModal({ isOpen, onClose, mode = 'add' }: AddVenueModalProps) {
+interface Amenity {
+  id: number;
+  name: string;
+  icon: string;
+}
+
+export default function AddVenueModal({ isOpen, onClose, mode = 'add', venue, onSubmit }: AddVenueModalProps) {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    category: "",
+    price_per_hour: "",
+    capacity: "",
+    location: "",
+    city: "",
+    Pincode: "",
+    contact_phone: "",
+    contact_email: "",
+    opening_time: "",
+    closing_time: "",
+    minimum_booking_hours: "",
+    parking_capacity: "",
+    is_available: true,
+  });
+
+  const [amenities, setAmenities] = useState<Amenity[]>([]);
+  const [selectedAmenities, setSelectedAmenities] = useState<number[]>([]);
+
+  useEffect(() => {
+    const fetchAmenities = async () => {
+      try {
+        const data = await getAmenities();
+        setAmenities(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchAmenities();
+  }, []);
+
+  const toggleAmenity = (id: number) => {
+    setSelectedAmenities((prev) =>
+      prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "number" ? Number(value) : value,
+    }));
+  };
+  
   const isEdit = mode === 'edit';
   
-  const [images, setImages] = useState<string[]>(
-    isEdit ? ["https://lh3.googleusercontent.com/aida-public/AB6AXuBbOrg6YEAsQrQtzV5kaf_EyAQs0Qx8UY7irkzVSi7vFXI-Q-u6EEriDyQa7AueeyP8tJuqzZRPiu2UjrhqABtM4zOOUmgpWbb2MzZIhqyT_0xNRMOkN9VCwNKBQuScECPKjXR8Nop0E1JkYEhAFD3lwzEEbAXrZgFXdPWR37vGKUXaqr-R9f1GFfTXsJOJj7NSDs3WdtPFJ58kO1oZJ6nFC90Xg1v0IvFMaaMhvhl-flCVUwbfIL2ZMQ"] : []
-  );
+  const [images, setImages] = useState<
+    { file: File; preview: string }[]
+  >([]);
 
   useEffect(() => {
     if (isOpen) {
-      document.body.classList.add('overflow-hidden');
-      setImages(isEdit ? ["https://lh3.googleusercontent.com/aida-public/AB6AXuBbOrg6YEAsQrQtzV5kaf_EyAQs0Qx8UY7irkzVSi7vFXI-Q-u6EEriDyQa7AueeyP8tJuqzZRPiu2UjrhqABtM4zOOUmgpWbb2MzZIhqyT_0xNRMOkN9VCwNKBQuScECPKjXR8Nop0E1JkYEhAFD3lwzEEbAXrZgFXdPWR37vGKUXaqr-R9f1GFfTXsJOJj7NSDs3WdtPFJ58kO1oZJ6nFC90Xg1v0IvFMaaMhvhl-flCVUwbfIL2ZMQ"] : []);
+      document.body.classList.add("overflow-hidden");
+
+      // Reset form when opening in Add mode
+      if (!isEdit) {
+        setFormData({
+          name: "",
+          description: "",
+          category: "",
+          price_per_hour: "",
+          capacity: "",
+          location: "",
+          city: "",
+          Pincode: "",
+          contact_phone: "",
+          contact_email: "",
+          opening_time: "",
+          closing_time: "",
+          minimum_booking_hours: "",
+          parking_capacity: "",
+          is_available: true,
+        });
+
+        setSelectedAmenities([]);
+        setImages([]);
+      }
     } else {
-      document.body.classList.remove('overflow-hidden');
+      document.body.classList.remove("overflow-hidden");
     }
-    return () => document.body.classList.remove('overflow-hidden');
+
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
   }, [isOpen, isEdit]);
 
   if (!isOpen) return null;
 
   const handleRemoveImage = (indexToRemove: number) => {
-    setImages(images.filter((_, idx) => idx !== indexToRemove));
+    setImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
-  const handleAddImageMock = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (images.length < 5) {
-      setImages([...images, "https://lh3.googleusercontent.com/aida-public/AB6AXuCW6a2_SRCmSOOa2E1ioJyARX7aXybCwfK0t4GoW999XslPfsCjeB0ZZmFH6gzTtHdzus6poCqN8asRBnhX3QTTu_-zPINVI6AAEFJ7rCHhM7zevR_GjH3ZqRHbtmtn-zNJ9iDIaB3CCoNRUh__3TYf9wJjih8jBNDN1FNopb1YQbnJqGVe0DQfLJVPcqYm0qq1Q2tpkOA0BietcdNz0_0w4fbDz1_a7dXKrFhypFFt5aBHmcF2vSwkkA"]);
-    }
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+
+    const newImages = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+
+    setImages((prev) => [...prev, ...newImages]);
+  };
+
+  const handleSave = async () => {
+    const payload = new FormData();
+
+    Object.entries(formData).forEach(([key, value]) => {
+      payload.append(key, String(value));
+    });
+
+    selectedAmenities.forEach((id) => {
+      payload.append("amenities", String(id));
+    });
+
+    images.forEach((img) => {
+      payload.append("uploaded_images", img.file);
+    });
+
+    await onSubmit(payload);
   };
 
   return (
@@ -66,7 +177,7 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add' }: AddVenu
               <label className="block font-label-sm text-on-surface-variant mb-1.5">Venue Name</label>
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-3 text-outline">apartment</span>
-                <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" type="text" placeholder="e.g. Grand Crystal Ballroom" defaultValue={isEdit ? "Grand Crystal Ballroom" : ""} />
+                <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" name="name" type="text" placeholder="e.g. Grand Crystal Ballroom" value={formData.name} onChange={handleChange} />
               </div>
             </div>
             
@@ -75,19 +186,36 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add' }: AddVenu
                 <label className="block font-label-sm text-on-surface-variant mb-1.5">Location</label>
                 <div className="relative flex items-center">
                   <span className="material-symbols-outlined absolute left-3 text-outline">location_on</span>
-                  <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" type="text" placeholder="Address" defaultValue={isEdit ? "New York, NY" : ""} />
+                  <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" name="location" type="text" placeholder="location" value={formData.location} onChange={handleChange} />
                 </div>
               </div>
               <div>
                 <label className="block font-label-sm text-on-surface-variant mb-1.5">City</label>
                 <div className="relative flex items-center">
-                  <input className="w-full px-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" type="text" placeholder="City" defaultValue={isEdit ? "New York" : ""} />
+                  <input className="w-full px-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" name="city" type="text" placeholder="City" value={formData.city} onChange={handleChange} />
                 </div>
               </div>
               <div>
                 <label className="block font-label-sm text-on-surface-variant mb-1.5">Pincode</label>
                 <div className="relative flex items-center">
-                  <input className="w-full px-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" type="text" placeholder="Zip/Pincode" defaultValue={isEdit ? "10001" : ""} />
+                  <input className="w-full px-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" name="Pincode" type="text" placeholder="Pincode" value={formData.Pincode} onChange={handleChange} />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-1">
+                <label className="block font-label-sm text-on-surface-variant mb-1.5">Email</label>
+                <div className="relative flex items-center">
+                  <span className="material-symbols-outlined absolute left-3 text-outline">email</span>
+                  <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" name="contact_email" type="email" placeholder="Email" value={formData.contact_email} onChange={handleChange} />
+                </div>
+              </div>
+              <div>
+                <label className="block font-label-sm text-on-surface-variant mb-1.5">Phone</label>
+                <div className="relative flex items-center">
+                  <span className="material-symbols-outlined absolute left-3 text-outline">phone</span>
+                  <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" name="contact_phone" type="text" placeholder="Phone" value={formData.contact_phone} onChange={handleChange} />
                 </div>
               </div>
             </div>
@@ -96,13 +224,23 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add' }: AddVenu
               <label className="block font-label-sm text-on-surface-variant mb-1.5">Category</label>
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-3 text-outline">layers</span>
-                <select className="w-full pl-10 pr-10 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white appearance-none" defaultValue={isEdit ? "banquet" : ""}>
-                  <option disabled value="">Select Category</option>
-                  <option value="banquet">Banquet Hall</option>
-                  <option value="conference">Conference Room</option>
-                  <option value="outdoor">Outdoor Garden</option>
+                <select
+                  className="w-full pl-10 pr-10 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white appearance-none"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                >
+                  <option value="" disabled>
+                    Select Category
+                  </option>
+
+                  <option value="wedding_hall">Wedding Hall</option>
+                  <option value="banquet_hall">Banquet Hall</option>
+                  <option value="auditorium">Auditorium</option>
+                  <option value="cafe">Cafe</option>
                   <option value="resort">Resort</option>
-                  <option value="dining">Private Dining</option>
+                  <option value="meeting_room">Meeting Room</option>
+                  <option value="beachside">Beachside Venue</option>
                 </select>
                 <span className="material-symbols-outlined absolute right-3 text-outline pointer-events-none">expand_more</span>
               </div>
@@ -110,42 +248,59 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add' }: AddVenu
             
             <div>
               <label className="block font-label-sm text-on-surface-variant mb-1.5">Venue Description</label>
-              <textarea className="w-full px-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white resize-none" rows={4} placeholder="Describe your venue..." defaultValue={isEdit ? "A luxurious grand ballroom perfect for weddings and corporate events." : ""}></textarea>
+              <textarea className="w-full px-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white resize-none" rows={4} placeholder="Describe your venue..." name="description" value={formData.description} onChange={handleChange}> </textarea>
             </div>
             
             <div>
               <label className="block font-label-sm text-on-surface-variant mb-1.5">Maximum Guest Capacity</label>
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-3 text-outline">group</span>
-                <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" type="number" placeholder="e.g. 500" defaultValue={isEdit ? "500" : ""} />
+                <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" type="number" placeholder="e.g. 500" name="capacity" value={formData.capacity} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-label-sm text-on-surface-variant mb-1.5">Parking Capacity</label>
+              <div className="relative flex items-center">
+                <span className="material-symbols-outlined absolute left-3 text-outline">directions_car</span>
+                <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-surface-white" type="number" placeholder="e.g. 500" name="parking_capacity" value={formData.parking_capacity} onChange={handleChange} />
               </div>
             </div>
           </div>
 
           {/* Amenities Grid */}
-          <div className="space-y-4 bg-surface-white p-5 rounded-xl border border-outline-variant shadow-sm">
-            <h3 className="font-label-md text-primary uppercase tracking-wider mb-2">Amenities</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <button className="flex flex-col items-center justify-center p-4 border border-primary bg-primary-container text-on-primary-container rounded-xl gap-2 text-center transition-colors" type="button">
-                <span className="material-symbols-outlined">wifi</span>
-                <span className="text-[12px] font-semibold">High-Speed WIFI</span>
-              </button>
-              <button className="flex flex-col items-center justify-center p-4 border border-outline-variant hover:bg-surface-container-low rounded-xl gap-2 text-center transition-colors" type="button">
-                <span className="material-symbols-outlined">coffee</span>
-                <span className="text-[12px] font-semibold">Kitchen</span>
-              </button>
-              <button className="flex flex-col items-center justify-center p-4 border border-outline-variant hover:bg-surface-container-low rounded-xl gap-2 text-center transition-colors" type="button">
-                <span className="material-symbols-outlined">local_parking</span>
-                <span className="text-[12px] font-semibold">Parking</span>
-              </button>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {amenities.map((amenity) => {
+              const selected = selectedAmenities.includes(amenity.id);
+
+              return (
+                <button
+                  key={amenity.id}
+                  type="button"
+                  onClick={() => toggleAmenity(amenity.id)}
+                  className={`flex flex-col items-center justify-center p-4 rounded-xl gap-2 text-center transition-colors border ${
+                    selected
+                      ? "border-primary bg-primary-container text-on-primary-container"
+                      : "border-outline-variant hover:bg-surface-container-low"
+                  }`}
+                >
+                  <span className="material-symbols-outlined">
+                    {amenity.icon}
+                  </span>
+
+                  <span className="text-[12px] font-semibold">
+                    {amenity.name}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Booking & Pricing & Hours */}
           <div className="space-y-5 bg-surface-white p-5 rounded-xl border border-outline-variant shadow-sm">
             <h3 className="font-label-md text-primary uppercase tracking-wider mb-2">Booking, Pricing & Hours</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
+              {/* <div>
                 <label className="block font-label-sm text-on-surface-variant mb-1.5">Booking Type</label>
                 <div className="relative flex items-center">
                   <select className="w-full px-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary outline-none bg-surface-white appearance-none" defaultValue={isEdit ? "Hourly" : "Hourly"}>
@@ -154,27 +309,47 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add' }: AddVenu
                   </select>
                   <span className="material-symbols-outlined absolute right-3 text-outline pointer-events-none">expand_more</span>
                 </div>
+              </div> */}
+              <div>
+                <label className="block font-label-sm text-on-surface-variant mb-1.5">Minimum Booking Hours</label>
+                <div className="relative flex items-center">
+                  <span className="material-symbols-outlined absolute left-3 text-outline">hourglass</span>
+                  <input name="minimum_booking_hours" className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary outline-none bg-surface-white" type="number" placeholder="0.00" value={formData.minimum_booking_hours} onChange={handleChange} />
+                </div>
               </div>
+
               <div>
                 <label className="block font-label-sm text-on-surface-variant mb-1.5">Base Price ($)</label>
                 <div className="relative flex items-center">
                   <span className="material-symbols-outlined absolute left-3 text-outline">payments</span>
-                  <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary outline-none bg-surface-white" type="number" placeholder="0.00" defaultValue={isEdit ? "250" : ""} />
+                  <input name="price_per_hour" className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary outline-none bg-surface-white" type="number" placeholder="0.00" value={formData.price_per_hour} onChange={handleChange} />
                 </div>
-              </div>
+              </div>              
               
               <div>
                 <label className="block font-label-sm text-on-surface-variant mb-1.5">Opening Time</label>
                 <div className="relative flex items-center">
                   <span className="material-symbols-outlined absolute left-3 text-outline">schedule</span>
-                  <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary outline-none bg-surface-white" type="time" defaultValue={isEdit ? "09:00" : ""} />
+                  <input
+                    name="opening_time"
+                    className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary outline-none bg-surface-white"
+                    type="time"
+                    value={formData.opening_time}
+                    onChange={handleChange}
+                  />
                 </div>
               </div>
               <div>
                 <label className="block font-label-sm text-on-surface-variant mb-1.5">Closing Time</label>
                 <div className="relative flex items-center">
                   <span className="material-symbols-outlined absolute left-3 text-outline">schedule</span>
-                  <input className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary outline-none bg-surface-white" type="time" defaultValue={isEdit ? "23:00" : ""} />
+                  <input
+                    name="closing_time"
+                    className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-outline-variant focus:ring-1 focus:ring-primary outline-none bg-surface-white"
+                    type="time"
+                    value={formData.closing_time}
+                    onChange={handleChange}
+                  />
                 </div>
               </div>
             </div>
@@ -194,14 +369,14 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add' }: AddVenu
                 <label className="aspect-square border-2 border-dashed border-outline-variant hover:border-primary hover:bg-surface-container-low rounded-xl flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all">
                   <span className="material-symbols-outlined text-outline">add</span>
                   <span className="text-[12px] font-semibold text-on-surface-variant mt-1">Upload</span>
-                  <input className="hidden" type="file" accept="image/*" onChange={handleAddImageMock} />
+                  <input className="hidden" type="file" accept="image/*" onChange={handleImageUpload} />
                 </label>
               )}
 
               {/* Uploaded Images */}
               {images.map((imgSrc, idx) => (
                 <div key={idx} className="relative aspect-square bg-surface-container rounded-xl overflow-hidden group">
-                  <img className="w-full h-full object-cover" src={imgSrc} alt={`Venue image ${idx + 1}`} />
+                  <img className="w-full h-full object-cover" src={imgSrc.preview} alt={`Venue image ${idx + 1}`} />
                   <button 
                     type="button"
                     onClick={() => handleRemoveImage(idx)}
@@ -221,7 +396,7 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add' }: AddVenu
           <button onClick={onClose} className="px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container font-semibold text-sm transition-colors cursor-pointer" type="button">
             Cancel
           </button>
-          <button className="px-5 py-2.5 rounded-lg bg-surface-container-lowest border border-primary text-primary font-semibold text-sm shadow-sm hover:bg-surface-container-low transition-colors cursor-pointer" type="button">
+          <button className="px-5 py-2.5 rounded-lg bg-surface-container-lowest border border-primary text-primary font-semibold text-sm shadow-sm hover:bg-surface-container-low transition-colors cursor-pointer" type="button" onClick={handleSave}>
             Save Draft
           </button>
           <button className="px-6 py-2.5 rounded-lg bg-primary text-on-primary font-semibold text-sm shadow-sm hover:opacity-90 transition-opacity cursor-pointer" type="button">

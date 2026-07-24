@@ -1,6 +1,7 @@
 from accounts.permissions import IsOwner
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .models import (Venue, Amenity, VenueImage,)
 from .serializers import (VenueSerializer, AmenitySerializer, VenueImageSerializer,)
 
@@ -8,11 +9,12 @@ from .serializers import (VenueSerializer, AmenitySerializer, VenueImageSerializ
 class VenueViewSet(ModelViewSet):
     serializer_class = VenueSerializer
     lookup_field = "slug"
+    parser_classes = (MultiPartParser, FormParser, JSONParser,)
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
             return [IsOwner()]
-        return [IsAuthenticatedOrReadOnly()]
+        return [IsAuthenticatedOrReadOnly(), IsOwner]
 
     def get_queryset(self):
         return Venue.objects.filter(status="approved")

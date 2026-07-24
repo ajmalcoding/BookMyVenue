@@ -20,14 +20,10 @@ class Venue(models.Model):
     class Category(models.TextChoices):
         WEDDING_HALL = "wedding_hall", "Wedding Hall"
         BANQUET_HALL = "banquet_hall", "Banquet Hall"
-        CONFERENCE_HALL = "conference_hall", "Conference Hall"
         AUDITORIUM = "auditorium", "Auditorium"
-        HOTEL = "hotel", "Hotel"
+        CAFE = "cafe", "Cafe"
         RESORT = "resort", "Resort"
-        PARTY_HALL = "party_hall", "Party Hall"
         MEETING_ROOM = "meeting_room", "Meeting Room"
-        FARMHOUSE = "farmhouse", "Farm House"
-        VILLA = "villa", "Villa"
         BEACHSIDE = "beachside", "Beachside Venue"
 
     class Status(models.TextChoices):
@@ -44,7 +40,6 @@ class Venue(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True)
 
-    short_description = models.CharField(max_length=200, blank=True)
     description = models.TextField()
 
     category = models.CharField(
@@ -57,26 +52,11 @@ class Venue(models.Model):
         decimal_places=2,
     )
 
-    cleaning_fee = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=0,
-        blank=True,
-    )
-
-    service_fee = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=0,
-        blank=True,
-    )
-
     capacity = models.PositiveIntegerField()
 
-    address = models.TextField()
+    location = models.TextField()
     city = models.CharField(max_length=100)
-    state = models.CharField(max_length=100)
-    landmark = models.CharField(max_length=255, blank=True)
+    Pincode = models.CharField(max_length=10)
 
     contact_phone = models.CharField(max_length=15, blank=True,)
     contact_email = models.EmailField(blank=True)
