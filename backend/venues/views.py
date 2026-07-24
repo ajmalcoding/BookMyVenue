@@ -1,8 +1,8 @@
 from accounts.permissions import IsOwner
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from .models import (Venue, Amenity, VenueImage,)
-from .serializers import (VenueSerializer, AmenitySerializer, VenueImageSerializer,)
+from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAuthenticated
+from .models import (Venue, Amenity, VenueImage,Review)
+from .serializers import (VenueSerializer, AmenitySerializer, VenueImageSerializer, ReviewSerializer , )
 
 # ViewSet for managing venues
 class VenueViewSet(ModelViewSet):
@@ -37,3 +37,19 @@ class VenueImageViewSet(ModelViewSet):
     def perform_create(self, serializer):
         venue_id = self.request.data.get("venue")
         serializer.save(venue_id=venue_id)
+
+class ReviewViewSet(ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        venue = Venue.objects.get(slug=self.kwargs["venue_slug"])
+        return Review.objects.filter(venue=venue)
+
+    def perform_create(self, serializer):
+        venue = Venue.objects.get(slug=self.kwargs["venue_slug"])
+
+        serializer.save(
+            user=self.request.user,
+            venue=venue,
+        )

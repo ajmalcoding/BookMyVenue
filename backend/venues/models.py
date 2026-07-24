@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 
 from django.conf import settings
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Amenity(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -174,3 +174,33 @@ class VenueCapacity(models.Model):
 
     def __str__(self):
         return f"{self.venue.name} - {self.layout}"
+class Review(models.Model):
+    venue = models.ForeignKey(
+        Venue,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    rating = models.PositiveSmallIntegerField(
+    validators=[
+        MinValueValidator(1),
+        MaxValueValidator(5)
+    ]
+    )
+
+    comment = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = ("venue", "user")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.venue.name}"    

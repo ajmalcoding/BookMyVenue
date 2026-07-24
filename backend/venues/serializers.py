@@ -5,6 +5,7 @@ from .models import (
     VenueImage,
     Amenity,
     VenueCapacity,
+    Review,
 )
 
 # Serializer for amenities
@@ -24,7 +25,6 @@ class VenueImageSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "image",
-            "caption",
             "is_primary",
         ]
 
@@ -37,6 +37,19 @@ class VenueCapacitySerializer(serializers.ModelSerializer):
             "layout",
             "capacity",
         ]
+class ReviewSerializer(serializers.ModelSerializer):
+
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Review
+        fields = [
+            "id",
+            "user",
+            "rating",
+            "comment",
+            "created_at",
+        ]                
 
 # Serializer for venues
 class VenueSerializer(serializers.ModelSerializer):
@@ -54,6 +67,7 @@ class VenueSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
+    reviews = ReviewSerializer(many=True, read_only=True)
 
     class Meta:
         model = Venue
