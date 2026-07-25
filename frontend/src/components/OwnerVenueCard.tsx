@@ -35,7 +35,7 @@ export default function OwnerVenueCard({
     <div className="bg-surface-container-lowest rounded-[16px] border border-outline-variant overflow-hidden shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05),0_10px_15px_-3px_rgba(0,0,0,0.15)] flex flex-col group">
       <div className="relative h-48 w-full overflow-hidden">
         <img className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt={imageAlt} src={imageSrc} />
-        <div className={`absolute top-4 left-4 ${categoryBg} ${categoryText} font-label-sm px-3 py-1 rounded-full backdrop-blur-md`}>{category}</div>
+        <div className={`absolute top-4 left-4 bg-tertiary-fixed text-on-tertiary-fixed font-label-sm px-3 py-1 rounded-full backdrop-blur-md`}>{category}</div>
         <div className={`absolute top-4 right-4 ${statusClasses} font-label-sm px-3 py-1 rounded-full border`}>{status}</div>
       </div>
       <div className="p-5 flex flex-col flex-1">

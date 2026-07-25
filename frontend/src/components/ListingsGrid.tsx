@@ -1,8 +1,30 @@
-import React from 'react';
-import ListingVenueCard from './ListingVenueCard';
+import React, { useEffect, useState } from "react";
+import ListingVenueCard from "./ListingVenueCard";
+import { getVenues } from "../api/venue";
 
 export default function ListingsGrid() {
-  const venues = [
+  const [venues, setVenues] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVenues = async () => {
+      try {
+        const data = await getVenues();
+
+        setVenues(data);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVenues();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const venuesmock = [
     {
       title: "The Grand Atrium",
       price: "$1,200",
@@ -55,10 +77,30 @@ export default function ListingsGrid() {
       </div>
       
       {/* Venue Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
         {venues.map((venue, index) => (
           <ListingVenueCard key={index} {...venue} />
         ))}
+      </div> */}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+      {venues.map((venue) => (
+        <ListingVenueCard
+          key={venue.slug}
+          title={venue.name}
+          price={`₹${venue.price_per_hour}`}
+          rating="4.8"
+          imageSrc={
+            venue.images.length
+              ? `${venue.images[0].image}`
+              : ""
+          }
+          imageAlt={venue.name}
+          description={venue.description}
+          badge={venue.category.replaceAll("_", " ")}
+          capacity={`${venue.capacity} Cap`}
+        />
+      ))}
       </div>
 
       {/* Pagination */}

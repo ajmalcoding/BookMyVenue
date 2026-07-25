@@ -1,26 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import VenueOwnerDashboardSidebar from '../components/VenueOwnerDashboardSidebar';
 import VenueOwnerStatCard from '../components/VenueOwnerStatsCard';
 import BookingRequestRow from '../components/BookingRequestRow';
 import MyVenuesView from '../components/MyVenuesView';
 import AddVenueModal from '../components/AddVenueModal';
-import { createVenue } from "../api/venue";
+import { createVenue, getMyVenues, updateVenue } from "../api/venue";
 
 export default function VenueOwnerDashboard() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'venues'>('dashboard');
   const [modalState, setModalState] = useState<{isOpen: boolean; mode: 'add' | 'edit'; venue?: any;}>({isOpen: false, mode: 'add', venue: undefined,});
+  const [venues, setVenues] = useState<any[]>([]);
 
-  const handleCreateVenue = async (payload: any) => {
+  useEffect(() => {
+    fetchMyVenues();
+  }, []);
+
+  const fetchMyVenues = async () => {
+    try {
+      const data = await getMyVenues();
+      setVenues(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSaveVenue = async (payload: any) => {
     try {
       console.log("Submitting:", payload);
 
-      const response = await createVenue(payload);
+      let response;
 
-      console.log("Venue Created:", response);
+      if (modalState.mode === "edit" && modalState.venue) {
+        response = await updateVenue(
+          modalState.venue.slug,
+          payload
+        );
+      } else {
+        response = await createVenue(payload);
+      }
+
+      console.log("Venue Saved:", response);
+      await fetchMyVenues();
 
       setModalState({
         isOpen: false,
         mode: "add",
+        venue: undefined,
       });
 
       // Later we'll refresh the venue list here
@@ -54,7 +79,7 @@ export default function VenueOwnerDashboard() {
       initialsText: "text-primary"
     }
   ];
-
+console.log("Selected venue:", modalState.venue);
   return (
     <div className="bg-surface text-on-surface font-body-md antialiased min-h-screen flex">
       <VenueOwnerDashboardSidebar 
@@ -134,9 +159,10 @@ export default function VenueOwnerDashboard() {
             </div>
           </>
           ) : (
-            <MyVenuesView 
-              onAddVenue={() => setModalState({isOpen: true, mode: 'add'})} 
-              onEditVenue={() => setModalState({isOpen: true, mode: 'edit'})}
+            <MyVenuesView
+              venues={venues}
+              onAddVenue={() => setModalState({ isOpen: true, mode: 'add', venue: undefined, })}
+              onEditVenue={(venue) => setModalState({ isOpen: true, mode: 'edit', venue })}
             />
           )}
       </main>
@@ -150,7 +176,7 @@ export default function VenueOwnerDashboard() {
             isOpen: false,
           })
         }
-        onSubmit={handleCreateVenue}
+        onSubmit={handleSaveVenue}
       />
     </div>
   );

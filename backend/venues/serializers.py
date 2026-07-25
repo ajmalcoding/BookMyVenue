@@ -89,6 +89,7 @@ class VenueSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         request = self.context["request"]
+        removed_images = request.data.getlist("removed_images")
 
         amenities = validated_data.pop("amenities", None)
 
@@ -100,6 +101,12 @@ class VenueSerializer(serializers.ModelSerializer):
         if amenities is not None:
             instance.amenities.set(amenities)
 
+        if removed_images:
+            VenueImage.objects.filter(
+                venue=instance,
+                id__in=removed_images,
+            ).delete()
+            
         for image in request.FILES.getlist("uploaded_images"):
             VenueImage.objects.create(
                 venue=instance,

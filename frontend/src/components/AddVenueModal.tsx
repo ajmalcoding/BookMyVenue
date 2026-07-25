@@ -36,6 +36,7 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add', venue, on
 
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<number[]>([]);
+  const [removedImageIds, setRemovedImageIds] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchAmenities = async () => {
@@ -71,9 +72,12 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add', venue, on
   
   const isEdit = mode === 'edit';
   
-  const [images, setImages] = useState<
-    { file: File; preview: string }[]
-  >([]);
+  type VenueImageType = {
+    id?: number;
+    file?: File;
+    preview: string;
+  };
+  const [images, setImages] = useState<VenueImageType[]>([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -101,6 +105,7 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add', venue, on
 
         setSelectedAmenities([]);
         setImages([]);
+        setRemovedImageIds([]);
       }
     } else {
       document.body.classList.remove("overflow-hidden");
@@ -111,10 +116,58 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add', venue, on
     };
   }, [isOpen, isEdit]);
 
+  useEffect(() => {
+    if (!isOpen || !isEdit || !venue) return;
+
+    setFormData({
+      name: venue.name || "",
+      description: venue.description || "",
+      category: venue.category || "",
+      price_per_hour: venue.price_per_hour?.toString() || "",
+      capacity: venue.capacity?.toString() || "",
+      location: venue.location || "",
+      city: venue.city || "",
+      Pincode: venue.Pincode || "",
+      contact_phone: venue.contact_phone || "",
+      contact_email: venue.contact_email || "",
+      opening_time: venue.opening_time || "",
+      closing_time: venue.closing_time || "",
+      minimum_booking_hours: venue.minimum_booking_hours?.toString() || "",
+      parking_capacity: venue.parking_capacity?.toString() || "",
+      is_available: venue.is_available ?? true,
+    });
+
+    setSelectedAmenities(venue.amenities || []);
+    setRemovedImageIds([]);
+
+    setImages(
+      venue.images.map((img: any) => ({
+        id: img.id,
+        preview: img.image,
+      }))
+    );
+  }, [isOpen, isEdit, venue]);
+
   if (!isOpen) return null;
 
   const handleRemoveImage = (indexToRemove: number) => {
-    setImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    setImages((prev) => {
+      const image = prev[indexToRemove];
+
+      if (image.id) {
+        setRemovedImageIds((ids) => {
+          const updatedIds = ids.includes(image.id!)
+            ? ids
+            : [...ids, image.id!];
+
+          console.log("Removed Image IDs:", updatedIds);
+
+          return updatedIds;
+        });
+      }
+
+      return prev.filter((_, idx) => idx !== indexToRemove);
+    });
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,7 +193,13 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add', venue, on
     });
 
     images.forEach((img) => {
-      payload.append("uploaded_images", img.file);
+      if (img.file) {
+        payload.append("uploaded_images", img.file);
+      }
+    });
+
+    removedImageIds.forEach((id) => {
+      payload.append("removed_images", String(id));
     });
 
     await onSubmit(payload);
@@ -396,10 +455,10 @@ export default function AddVenueModal({ isOpen, onClose, mode = 'add', venue, on
           <button onClick={onClose} className="px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container font-semibold text-sm transition-colors cursor-pointer" type="button">
             Cancel
           </button>
-          <button className="px-5 py-2.5 rounded-lg bg-surface-container-lowest border border-primary text-primary font-semibold text-sm shadow-sm hover:bg-surface-container-low transition-colors cursor-pointer" type="button" onClick={handleSave}>
+          {/* <button className="px-5 py-2.5 rounded-lg bg-surface-container-lowest border border-primary text-primary font-semibold text-sm shadow-sm hover:bg-surface-container-low transition-colors cursor-pointer" type="button" onClick={handleSave}>
             Save Draft
-          </button>
-          <button className="px-6 py-2.5 rounded-lg bg-primary text-on-primary font-semibold text-sm shadow-sm hover:opacity-90 transition-opacity cursor-pointer" type="button">
+          </button> */}
+          <button className="px-6 py-2.5 rounded-lg bg-primary text-on-primary font-semibold text-sm shadow-sm hover:opacity-90 transition-opacity cursor-pointer" type="button" onClick={handleSave}>
             {isEdit ? 'Update' : 'Publish'}
           </button>
         </div>
