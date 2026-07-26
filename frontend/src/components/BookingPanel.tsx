@@ -1,69 +1,309 @@
-import React from 'react';
+import React, { useMemo, useState } from "react";
 
-export default function BookingPanel() {
+interface Venue {
+  id: number;
+  name: string;
+  price_per_hour: number;
+  cleaning_fee: number;
+  service_fee: number;
+  minimum_booking_hours: number;
+  capacity: number;
+}
+
+interface BookingPanelProps {
+  venue: Venue;
+}
+
+export default function BookingPanel({
+  venue,
+}: BookingPanelProps) {
+
+  // =========================
+  // EDITED: State
+  // =========================
+
+  const [hours, setHours] = useState(
+    venue.minimum_booking_hours || 1
+  );
+
+  const [guests, setGuests] = useState(1);
+
+  const [checkIn, setCheckIn] = useState("");
+
+  const [checkOut, setCheckOut] = useState("");
+  // =========================
+  // EDITED: Price Calculation
+  // =========================
+  const subtotal = useMemo(() => {
+    return venue.price_per_hour * hours;
+  }, [hours, venue.price_per_hour]);
+
+  const total = useMemo(() => {
+    return (
+      subtotal +
+      Number(venue.cleaning_fee) +
+      Number(venue.service_fee)
+    );
+  }, [
+    subtotal,
+    venue.cleaning_fee,
+    venue.service_fee,
+  ]);
   return (
     <div className="lg:col-span-4 relative">
+
       <div className="sticky top-28 ambient-shadow border border-surface-variant rounded-xl p-6 bg-surface-container-lowest">
+
+        {/* ========================= */}
+        {/* EDITED: Price */}
+        {/* ========================= */}
+
         <div className="flex items-end justify-between mb-6">
+
           <div>
-            <span className="font-headline-lg text-headline-lg text-on-surface">$250</span>
-            <span className="font-body-md text-body-md text-on-surface-variant"> / hour</span>
+
+            <span className="font-headline-lg text-headline-lg text-on-surface">
+
+              ₹{venue.price_per_hour}
+
+            </span>
+
+            <span className="font-body-md text-body-md text-on-surface-variant">
+
+              {" "}
+              / hour
+
+            </span>
+
           </div>
-          <div className="flex items-center gap-1 font-label-md text-label-md">
-            <span className="material-symbols-outlined text-sm text-secondary-container" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-            <span className="font-bold text-on-surface">4.95</span>
-            <span className="text-on-surface-variant underline cursor-pointer">128 reviews</span>
+
+          <div className="text-right">
+
+            <p className="font-label-md font-semibold">
+              Capacity
+            </p>
+
+            <p className="text-on-surface-variant">
+              {venue.capacity} Guests
+            </p>
+
           </div>
+
         </div>
 
-        {/* Booking Form Inputs */}
+
+
+
+
+        {/* ========================= */}
+        {/* Booking Form */}
+        {/* ========================= */}
+
         <div className="border border-outline-variant rounded-lg overflow-hidden mb-4">
+
           <div className="flex border-b border-outline-variant">
-            <div className="w-1/2 p-3 border-r border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer">
-              <label className="block font-label-sm text-label-sm uppercase text-on-surface font-bold mb-1">Check-in</label>
-              <input className="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant outline-none" placeholder="Add date" type="text" />
+
+            <div className="w-1/2 p-3 border-r border-outline-variant">
+
+              <label className="block text-xs font-bold uppercase mb-1">
+
+                Check In
+
+              </label>
+
+              <input
+                type="date"
+                value={checkIn}
+                onChange={(e) => setCheckIn(e.target.value)}
+                className="w-full bg-transparent outline-none"
+              />
+
             </div>
-            <div className="w-1/2 p-3 hover:bg-surface-container-low transition-colors cursor-pointer">
-              <label className="block font-label-sm text-label-sm uppercase text-on-surface font-bold mb-1">Check-out</label>
-              <input className="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant outline-none" placeholder="Add date" type="text" />
+
+            <div className="w-1/2 p-3">
+
+              <label className="block text-xs font-bold uppercase mb-1">
+
+                Check Out
+
+              </label>
+
+              <input
+                type="date"
+                value={checkOut}
+                onChange={(e) => setCheckOut(e.target.value)}
+                className="w-full bg-transparent outline-none"
+              />
+
             </div>
+
           </div>
-          <div className="p-3 hover:bg-surface-container-low transition-colors cursor-pointer flex justify-between items-center">
-            <div>
-              <label className="block font-label-sm text-label-sm uppercase text-on-surface font-bold mb-1">Guests</label>
-              <span className="font-body-md text-body-md text-on-surface-variant">1 guest</span>
-            </div>
-            <span className="material-symbols-outlined text-on-surface">expand_more</span>
+
+
+
+
+
+          {/* Hours */}
+
+          <div className="border-b border-outline-variant p-3">
+
+            <label className="block text-xs font-bold uppercase mb-2">
+
+              Hours
+
+            </label>
+
+            <input
+              type="number"
+              min={venue.minimum_booking_hours}
+              value={hours}
+              onChange={(e) =>
+                setHours(Number(e.target.value))
+              }
+              className="w-full border rounded-lg px-3 py-2"
+            />
+
+            <p className="text-xs text-on-surface-variant mt-1">
+
+              Minimum {venue.minimum_booking_hours} hour(s)
+
+            </p>
+
           </div>
+
+
+
+
+
+          {/* Guests */}
+
+          <div className="p-3">
+
+            <label className="block text-xs font-bold uppercase mb-2">
+
+              Guests
+
+            </label>
+
+            <input
+              type="number"
+              min={1}
+              max={venue.capacity}
+              value={guests}
+              onChange={(e) =>
+                setGuests(Number(e.target.value))
+              }
+              className="w-full border rounded-lg px-3 py-2"
+            />
+
+            <p className="text-xs text-on-surface-variant mt-1">
+
+              Maximum Capacity : {venue.capacity}
+
+            </p>
+
+          </div>
+
         </div>
 
-        {/* Primary Action */}
-        <button className="w-full bg-primary text-on-primary font-label-md text-label-md font-bold py-4 rounded-xl hover:opacity-90 transition-opacity mb-4 shadow-[0_0_15px_rgba(37,99,235,0.3)]">
+
+
+
+
+        {/* ========================= */}
+        {/* Book Button */}
+        {/* ========================= */}
+
+        <button className="w-full bg-primary text-on-primary font-bold py-4 rounded-xl hover:opacity-90 transition-opacity mb-4">
+
           Book Now
+
         </button>
-        <p className="text-center font-body-md text-body-md text-on-surface-variant text-sm mb-6">You won't be charged yet</p>
 
+        <p className="text-center text-sm text-on-surface-variant mb-6">
+
+          You won't be charged yet
+
+        </p>
+
+
+
+
+
+        {/* ========================= */}
         {/* Price Breakdown */}
-        <div className="space-y-4 font-body-md text-body-md text-on-surface pb-6 border-b border-surface-variant">
+        {/* ========================= */}
+
+        <div className="space-y-4 border-b border-surface-variant pb-6">
+
           <div className="flex justify-between">
-            <span className="underline cursor-pointer">$250 x 8 hours</span>
-            <span>$2,000</span>
+
+            <span>
+
+              ₹{venue.price_per_hour} × {hours} hour(s)
+
+            </span>
+
+            <span>
+
+              ₹{subtotal}
+
+            </span>
+
           </div>
+
           <div className="flex justify-between">
-            <span className="underline cursor-pointer">Cleaning fee</span>
-            <span>$150</span>
+
+            <span>
+
+              Cleaning Fee
+
+            </span>
+
+            <span>
+
+              ₹{venue.cleaning_fee}
+
+            </span>
+
           </div>
+
           <div className="flex justify-between">
-            <span className="underline cursor-pointer">Service fee</span>
-            <span>$215</span>
+
+            <span>
+
+              Service Fee
+
+            </span>
+
+            <span>
+
+              ₹{venue.service_fee}
+
+            </span>
+
           </div>
+
         </div>
 
-        <div className="flex justify-between font-headline-md text-headline-md text-on-surface pt-6">
+        {/* ========================= */}
+        {/* Total */}
+        {/* ========================= */}
+
+        <div className="flex justify-between font-headline-md text-headline-md pt-6">
+
           <span>Total</span>
-          <span>$2,365</span>
+
+          <span>
+
+            ₹{total}
+
+          </span>
+
         </div>
+
       </div>
+
     </div>
   );
 }

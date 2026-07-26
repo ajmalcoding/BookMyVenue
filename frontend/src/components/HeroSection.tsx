@@ -2,9 +2,10 @@ import React from 'react';
 
 export default function HeroSection() {
   return (
+    
     <section className="relative min-h-[600px] flex items-center justify-center px-margin-mobile md:px-margin-desktop py-20 overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBlXlVDzcNwY61EYXw-LNPb11fEKPIRmIIG0ALU5M4MZCScOfwKpMm4Q_-Oy-QdoPgLyaPlHQjQ1tUoEYTYca77HX2fsg3msXpmE4fdOwzWA2oB7nan5GTx97GDezg2pv7TOANqj9Wb_MK9LcZzv1hzSEPrffi0sG46z-Y5r6nfqFkFs4IbPdp3Aka7p6RKcManUscmXTPzQldz27bCgtwEXhLIYwn_J8Lnu5LsZTt4M2neeK9yCypoEoL-A0YgB1Fc2VxB3ow4YaLh')" }}>
+      <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: "url('https://images.pexels.com/photos/12919483/pexels-photo-12919483.jpeg')" }}>
         <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
       </div>
       <div className="relative z-10 max-w-4xl w-full mx-auto text-center">

@@ -1,204 +1,461 @@
-import React from 'react';
-import DetailNavBar from '../components/DetailNavBar';
-import DetailFooter from '../components/DetailFooter';
-import VenueGallery from '../components/VenueGallery';
-import BookingPanel from '../components/BookingPanel';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+
+import DetailNavBar from "../components/DetailNavBar";
+import DetailFooter from "../components/DetailFooter";
+import VenueGallery from "../components/VenueGallery";
+import BookingPanel from "../components/BookingPanel";
+import ReviewList from "../components/ReviewList";
+
+
+// =======================
+// EDITED : Interfaces
+// =======================
+
+interface Amenity {
+  id: number;
+  name: string;
+  icon: string;
+}
+
+interface Layout {
+  id: number;
+  layout: string;
+  capacity: number;
+}
+
+interface VenueImage {
+  id: number;
+  image: string;
+  is_primary: boolean;
+}
+
+interface Owner {
+  id: number;
+  username: string;
+  email: string;
+}
+interface Review {
+    id: number;
+  user_email: string;
+  rating: number;
+  comment: string;
+  created_at: string;
+}
+
+interface Venue {
+  id: number;
+  name: string;
+  slug: string;
+
+  short_description: string;
+  description: string;
+
+  city: string;
+  state: string;
+  address: string;
+  landmark: string;
+
+  category: string;
+
+  price_per_hour: number;
+  cleaning_fee: number;
+  service_fee: number;
+
+  capacity: number;
+
+  contact_phone: string;
+  contact_email: string;
+
+  opening_time: string;
+  closing_time: string;
+
+  minimum_booking_hours: number;
+
+  parking_capacity: number;
+
+  owner: Owner;
+
+  amenities: Amenity[];
+
+  layouts: Layout[];
+  reviews: Review[];
+  images: VenueImage[];
+}
 
 export default function VenueDetail() {
+
+  const { slug } = useParams();
+
+  const [venue, setVenue] = useState<Venue | null>(null);
+
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
+
+  // =======================
+  // EDITED : Fetch Venue
+  // =======================
+
+  useEffect(() => {
+
+    const fetchVenue = async () => {
+
+      try {
+
+        const response = await axios.get(
+          `http://127.0.0.1:8000/api/venues/venues/${slug}/`
+        );
+
+        setVenue(response.data);
+
+      } catch (err) {
+
+        console.error(err);
+
+        setError("Unable to load venue.");
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    };
+
+    fetchVenue();
+
+  }, [slug]);
+
+
+
+  // =======================
+  // EDITED : Loading
+  // =======================
+
+  if (loading) {
+
+    return (
+
+      <div className="min-h-screen flex justify-center items-center">
+
+        Loading Venue...
+
+      </div>
+
+    );
+
+  }
+
+  // =======================
+  // EDITED : Error
+  // =======================
+
+  if (error || !venue) {
+
+    return (
+
+      <div className="min-h-screen flex justify-center items-center text-red-500">
+
+        {error}
+
+      </div>
+
+    );
+
+  }
+
   return (
+
     <div className="font-body-md text-body-md antialiased overflow-x-hidden bg-surface text-on-surface min-h-screen">
+
       <DetailNavBar />
-      
+
       <main className="pt-24 pb-24 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-        {/* Header Title & Location */}
+
+        {/* ========================= */}
+        {/* EDITED : Dynamic Header */}
+        {/* ========================= */}
+
         <div className="mb-gutter">
-          <h1 className="font-display-lg text-display-lg text-on-surface mb-2">The Grand Horizon Loft</h1>
-          <div className="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
-            <span className="material-symbols-outlined text-base">location_on</span>
-            <span>Downtown Arts District, Metropolitan Area</span>
-            <span className="mx-2">•</span>
-            <span className="flex items-center gap-1">
-              <span className="material-symbols-outlined text-base text-secondary-container" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-              <span className="font-bold text-on-surface">4.95</span>
-              <span className="text-on-surface-variant">(128 Reviews)</span>
+
+          <h1 className="font-display-lg text-display-lg text-on-surface mb-2">
+
+            {venue.name}
+
+          </h1>
+
+          <div className="flex items-center gap-2 text-on-surface-variant">
+
+            <span className="material-symbols-outlined">
+
+              location_on
+
             </span>
+
+            <span>
+
+              {venue.city}, {venue.state}
+
+            </span>
+
           </div>
+
         </div>
 
-        <VenueGallery />
+
+
+        {/* ========================= */}
+        {/* EDITED : Dynamic Gallery */}
+        {/* ========================= */}
+
+        <VenueGallery images={venue.images} />
+
+
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-          {/* Left Column: Details */}
+
+          {/* Left Column */}
+
           <div className="lg:col-span-8 flex flex-col gap-margin-desktop">
-            {/* Host Info */}
-            <div className="flex items-center justify-between pb-gutter border-b border-surface-variant">
-              <div>
-                <h2 className="font-headline-md text-headline-md text-on-surface mb-1">Hosted by Premium Events Co.</h2>
-                <p className="font-body-md text-body-md text-on-surface-variant">Superhost • 5 years hosting</p>
-              </div>
-              <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-container border border-surface-variant">
-                <span className="material-symbols-outlined text-4xl text-on-surface-variant flex items-center justify-center w-full h-full">business</span>
-              </div>
-            </div>
+            {/* ========================= */}
+{/* EDITED : Host Info */}
+{/* ========================= */}
 
-            {/* Highlights */}
-            <div className="flex flex-col gap-6 pb-gutter border-b border-surface-variant">
-              <div className="flex gap-4">
-                <span className="material-symbols-outlined text-3xl text-primary">workspace_premium</span>
-                <div>
-                  <h3 className="font-label-md text-label-md font-bold text-on-surface mb-1">Premium Space</h3>
-                  <p className="font-body-md text-body-md text-on-surface-variant">Top-tier amenities and dedicated support staff.</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <span className="material-symbols-outlined text-3xl text-primary">location_city</span>
-                <div>
-                  <h3 className="font-label-md text-label-md font-bold text-on-surface mb-1">Prime Location</h3>
-                  <p className="font-body-md text-body-md text-on-surface-variant">Situated in the heart of the arts district with easy transit access.</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <span className="material-symbols-outlined text-3xl text-primary">event_available</span>
-                <div>
-                  <h3 className="font-label-md text-label-md font-bold text-on-surface mb-1">Flexible Booking</h3>
-                  <p className="font-body-md text-body-md text-on-surface-variant">Free cancellation up to 48 hours before the event.</p>
-                </div>
-              </div>
-            </div>
+<div className="flex items-center justify-between pb-gutter border-b border-surface-variant">
+  <div>
+    <h2 className="font-headline-md text-headline-md text-on-surface mb-1">
+      Hosted by {venue.owner.username}
+    </h2>
 
-            {/* About Section */}
-            <section className="pb-gutter border-b border-surface-variant">
-              <h2 className="font-headline-lg text-headline-lg text-on-surface mb-4">About this space</h2>
-              <div className="font-body-lg text-body-lg text-on-surface-variant space-y-4">
-                <p>
-                  Experience unparalleled elegance at The Grand Horizon Loft. Designed for both high-stakes corporate retreats and exclusive social gatherings, this space blends architectural precision with welcoming hospitality.
-                </p>
-                <p>
-                  The venue features floor-to-ceiling windows that flood the area with natural light, highlighting the minimalist decor and glassmorphic accents. With state-of-the-art integrated technology and a flexible open-plan layout, it seamlessly adapts to your specific event requirements.
-                </p>
-                <button className="font-label-md text-label-md text-primary font-bold hover:underline flex items-center gap-1 mt-2">
-                  Show more <span className="material-symbols-outlined text-sm">chevron_right</span>
-                </button>
-              </div>
-            </section>
+    <p className="font-body-md text-body-md text-on-surface-variant">
+      Venue Owner
+    </p>
+  </div>
 
-            {/* Amenities Grid */}
-            <section className="pb-gutter border-b border-surface-variant">
-              <h2 className="font-headline-lg text-headline-lg text-on-surface mb-6">What this venue offers</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl border border-surface-variant bg-surface flex flex-col items-start gap-2 hover:border-primary transition-colors">
-                  <span className="material-symbols-outlined text-on-surface-variant">wifi</span>
-                  <span className="font-body-md text-body-md text-on-surface">High-speed Wi-Fi</span>
-                </div>
-                <div className="p-4 rounded-xl border border-surface-variant bg-surface flex flex-col items-start gap-2 hover:border-primary transition-colors">
-                  <span className="material-symbols-outlined text-on-surface-variant">tv</span>
-                  <span className="font-body-md text-body-md text-on-surface">4K Projector & Screens</span>
-                </div>
-                <div className="p-4 rounded-xl border border-surface-variant bg-surface flex flex-col items-start gap-2 hover:border-primary transition-colors">
-                  <span className="material-symbols-outlined text-on-surface-variant">ac_unit</span>
-                  <span className="font-body-md text-body-md text-on-surface">Climate Control</span>
-                </div>
-                <div className="p-4 rounded-xl border border-surface-variant bg-surface flex flex-col items-start gap-2 hover:border-primary transition-colors">
-                  <span className="material-symbols-outlined text-on-surface-variant">local_cafe</span>
-                  <span className="font-body-md text-body-md text-on-surface">Catering Kitchen</span>
-                </div>
-                <div className="p-4 rounded-xl border border-surface-variant bg-surface flex flex-col items-start gap-2 hover:border-primary transition-colors">
-                  <span className="material-symbols-outlined text-on-surface-variant">accessible</span>
-                  <span className="font-body-md text-body-md text-on-surface">Wheelchair Accessible</span>
-                </div>
-                <div className="p-4 rounded-xl border border-surface-variant bg-surface flex flex-col items-start gap-2 hover:border-primary transition-colors">
-                  <span className="material-symbols-outlined text-on-surface-variant">local_parking</span>
-                  <span className="font-body-md text-body-md text-on-surface">Valet Parking</span>
-                </div>
-              </div>
-              <button className="mt-6 px-6 py-3 border border-outline text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors">
-                Show all 32 amenities
-              </button>
-            </section>
+  <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-container border border-surface-variant">
+    <span className="material-symbols-outlined text-4xl text-on-surface-variant flex items-center justify-center w-full h-full">
+      business
+    </span>
+  </div>
+</div>
 
-            {/* Capacity & Layout */}
-            <section className="pb-gutter border-b border-surface-variant">
-              <h2 className="font-headline-lg text-headline-lg text-on-surface mb-6">Capacity & Layouts</h2>
-              <div className="flex gap-4 overflow-x-auto pb-4" style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
-                <div className="flex-shrink-0 px-4 py-2 rounded-full bg-primary-container/10 border border-primary/20 text-primary font-label-md text-label-md flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">groups</span> Standing: 150
-                </div>
-                <div className="flex-shrink-0 px-4 py-2 rounded-full bg-surface-container border border-surface-variant text-on-surface-variant font-label-md text-label-md flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">table_restaurant</span> Banquet: 80
-                </div>
-                <div className="flex-shrink-0 px-4 py-2 rounded-full bg-surface-container border border-surface-variant text-on-surface-variant font-label-md text-label-md flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">meeting_room</span> Conference: 50
-                </div>
-                <div className="flex-shrink-0 px-4 py-2 rounded-full bg-surface-container border border-surface-variant text-on-surface-variant font-label-md text-label-md flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">chair</span> Theater: 100
-                </div>
-              </div>
-            </section>
+{/* ========================= */}
+{/* EDITED : Highlights */}
+{/* ========================= */}
 
-            {/* Map Section */}
-            <section className="pb-gutter border-b border-surface-variant">
-              <h2 className="font-headline-lg text-headline-lg text-on-surface mb-4">Location</h2>
-              <p className="font-body-md text-body-md text-on-surface-variant mb-6">Downtown Arts District, Metropolitan Area</p>
-              <div className="w-full h-[400px] rounded-xl overflow-hidden border border-surface-variant bg-surface-container relative">
-                <div className="absolute inset-0 flex items-center justify-center flex-col text-on-surface-variant">
-                  <span className="material-symbols-outlined text-4xl mb-2">map</span>
-                  <span className="font-label-md text-label-md">Interactive Map View</span>
-                </div>
-              </div>
-            </section>
+<div className="flex flex-col gap-6 pb-gutter border-b border-surface-variant">
 
-            {/* Reviews Section */}
-            <section>
-              <div className="flex items-center gap-2 mb-6">
-                <span className="material-symbols-outlined text-2xl text-on-surface" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                <h2 className="font-headline-lg text-headline-lg text-on-surface">4.95 • 128 Reviews</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Review Card 1 */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-surface-container overflow-hidden">
-                      <span className="material-symbols-outlined w-full h-full flex items-center justify-center text-on-surface-variant">person</span>
-                    </div>
-                    <div>
-                      <h4 className="font-label-md text-label-md font-bold text-on-surface">Sarah Jenkins</h4>
-                      <p className="font-body-md text-body-md text-on-surface-variant text-sm">October 2023</p>
-                    </div>
-                  </div>
-                  <p className="font-body-md text-body-md text-on-surface-variant">
-                    "Absolutely stunning space. The natural light made our corporate retreat feel open and energizing. The on-site staff were incredibly accommodating."
-                  </p>
-                </div>
+  <div className="flex gap-4">
+    <span className="material-symbols-outlined text-3xl text-primary">
+      groups
+    </span>
 
-                {/* Review Card 2 */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-surface-container overflow-hidden">
-                      <span className="material-symbols-outlined w-full h-full flex items-center justify-center text-on-surface-variant">person</span>
-                    </div>
-                    <div>
-                      <h4 className="font-label-md text-label-md font-bold text-on-surface">Michael Chen</h4>
-                      <p className="font-body-md text-body-md text-on-surface-variant text-sm">September 2023</p>
-                    </div>
-                  </div>
-                  <p className="font-body-md text-body-md text-on-surface-variant">
-                    "Perfect for our product launch. The AV setup was flawless, and the aesthetic matched our brand's premium feel exactly."
-                  </p>
-                </div>
-              </div>
-              <button className="mt-8 px-6 py-3 border border-outline text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors">
-                Show all 128 reviews
-              </button>
-            </section>
-          </div>
+    <div>
+      <h3 className="font-label-md font-bold">
+        Capacity
+      </h3>
 
-          {/* Right Column: Booking Panel */}
-          <BookingPanel />
-        </div>
-      </main>
-
-      <DetailFooter />
+      <p className="text-on-surface-variant">
+        Holds up to {venue.capacity} guests.
+      </p>
     </div>
-  );
+  </div>
+
+  <div className="flex gap-4">
+    <span className="material-symbols-outlined text-3xl text-primary">
+      schedule
+    </span>
+
+    <div>
+
+      <h3 className="font-label-md font-bold">
+        Opening Hours
+      </h3>
+
+      <p className="text-on-surface-variant">
+        {venue.opening_time} - {venue.closing_time}
+      </p>
+
+    </div>
+  </div>
+
+  <div className="flex gap-4">
+
+    <span className="material-symbols-outlined text-3xl text-primary">
+      local_parking
+    </span>
+
+    <div>
+
+      <h3 className="font-label-md font-bold">
+        Parking
+      </h3>
+
+      <p className="text-on-surface-variant">
+        {venue.parking_capacity} Parking Spaces
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+{/* ========================= */}
+{/* EDITED : About */}
+{/* ========================= */}
+
+<section className="pb-gutter border-b border-surface-variant">
+
+  <h2 className="font-headline-lg mb-4">
+
+    About this space
+
+  </h2>
+
+  <p className="text-on-surface-variant whitespace-pre-line">
+
+    {venue.description}
+
+  </p>
+
+</section>
+
+{/* ========================= */}
+{/* EDITED : Amenities */}
+{/* ========================= */}
+
+<section className="pb-gutter border-b border-surface-variant">
+
+  <h2 className="font-headline-lg mb-6">
+
+    What this venue offers
+
+  </h2>
+
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+    {venue.amenities.map((amenity) => (
+
+      <div
+        key={amenity.id}
+        className="p-4 rounded-xl border border-surface-variant bg-surface flex flex-col gap-2"
+      >
+
+        <span className="material-symbols-outlined">
+
+          {amenity.icon || "check_circle"}
+
+        </span>
+
+        <span>{amenity.name}</span>
+
+      </div>
+
+    ))}
+
+  </div>
+
+</section>
+
+{/* ========================= */}
+{/* EDITED : Layouts */}
+{/* ========================= */}
+
+<section className="pb-gutter border-b border-surface-variant">
+
+  <h2 className="font-headline-lg mb-6">
+
+    Capacity & Layouts
+
+  </h2>
+
+  <div
+    className="flex gap-4 overflow-x-auto pb-4"
+    style={{
+      msOverflowStyle: "none",
+      scrollbarWidth: "none",
+    }}
+  >
+
+    {venue.layouts.map((layout) => (
+
+      <div
+        key={layout.id}
+        className="flex-shrink-0 px-4 py-2 rounded-full bg-primary-container/10 border border-primary/20"
+      >
+
+        {layout.layout} : {layout.capacity}
+
+      </div>
+
+    ))}
+
+  </div>
+
+</section>
+
+{/* ========================= */}
+{/* EDITED : Location */}
+{/* ========================= */}
+
+<section className="pb-gutter border-b border-surface-variant">
+
+  <h2 className="font-headline-lg mb-4">
+
+    Location
+
+  </h2>
+
+  <p className="text-on-surface-variant mb-4">
+
+    {venue.address}
+
+  </p>
+
+  <p className="text-on-surface-variant mb-6">
+
+    {venue.city}, {venue.state}
+
+  </p>
+
+  <div className="h-[350px] rounded-xl bg-surface-container border border-surface-variant flex items-center justify-center">
+
+    <span className="text-on-surface-variant">
+
+      Google Map will be integrated here
+
+    </span>
+
+  </div>
+
+</section>
+
+{/* ========================= */}
+{/* Reviews (Keep Static) */}
+{/* ========================= */}
+
+{/* Reviews Section */}
+<ReviewList reviews={venue?.reviews || []} />
+
+</div>
+
+{/* ========================= */}
+{/* EDITED : Booking Panel */}
+{/* ========================= */}
+
+<BookingPanel venue={venue} />
+
+</div>
+
+</main>
+
+<DetailFooter />
+
+</div>
+
+);
+
 }
